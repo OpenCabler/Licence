@@ -200,23 +200,23 @@ input, select {
 }
 
 .signature-display img {
-  max-width: "400";
+  max-width: 100%;
   height: auto;
   max-height: 150px;
   border: 1px solid var(--border-color);
 }
 
 #signatureCanvas {
-    border: 2px solid #333;
+ border: 2px solid var(--border-color);
   display: block;
-  margin: 10px 0;
+  margin: 15px auto;
   touch-action: none;
-  background: white;
+  background: var(--input-bg);
   cursor: crosshair;
-
   width: 100%;
-  max-width: 400px;
+  max-width: 100%;
   height: 150px;
+  border-radius: 6px;
 }
 
 
@@ -910,7 +910,7 @@ function renderWeeksList() {
     `;
     weekSection.appendChild(signedDiv);
   } else {
-    // Show signature input form
+   // Show signature input form
     const sigSection = document.createElement("div");
     sigSection.className = "signature-section";
     sigSection.innerHTML = `
@@ -918,7 +918,7 @@ function renderWeeksList() {
       <input id="sup-name-${currentWeek}" placeholder="Supervisor Name" type="text" value="">
       <input id="sup-licence-${currentWeek}" placeholder="Licence Number" type="text" value="">
       <p><b>Signature:</b></p>
-      <canvas id="sig-canvas-${currentWeek}" class="sig-canvas" width="350" height="150"></canvas>
+      <canvas id="sig-canvas-${currentWeek}" class="sig-canvas"></canvas></canvas>
       <div class="button-group">
         <button onclick="clearSignature('${currentWeek}')" type="button">🔄 Clear</button>
         <button onclick="saveSignature('${currentWeek}')" type="button">✅ Save Sig</button>
@@ -943,10 +943,9 @@ function renderWeeksList() {
 
   // Setup canvas if not signed
   if (!isSigned) {
-  requestAnimationFrame(() => {
-    setupCanvas(currentWeek, null);
-  });
-
+    setTimeout(() => {
+      setupCanvas(currentWeek, null);
+    }, 100);
   }
 }
 
