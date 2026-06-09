@@ -5,11 +5,37 @@
 <title>Cabling Logbook</title>
 
 <style>
+:root {
+  --bg-color: #ffffff;
+  --text-color: #000000;
+  --border-color: #ccc;
+  --input-bg: #ffffff;
+  --input-border: #ccc;
+  --section-bg: #f9f9f9;
+  --button-hover: #e8e8e8;
+}
+
+body.dark-mode {
+  --bg-color: #1e1e1e;
+  --text-color: #e0e0e0;
+  --border-color: #444;
+  --input-bg: #2d2d2d;
+  --input-border: #444;
+  --section-bg: #2d2d2d;
+  --button-hover: #3d3d3d;
+}
+
+* {
+  color: var(--text-color);
+}
+
 body {
   font-family: Arial;
   max-width: 600px;
   margin: auto;
   padding: 20px;
+  background-color: var(--bg-color);
+  transition: background-color 0.3s, color 0.3s;
 }
 
 input, select, button {
@@ -17,30 +43,65 @@ input, select, button {
   margin: 6px 0;
   padding: 10px;
   font-size: 16px;
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-color);
+  border-radius: 4px;
+}
+
+button {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: var(--button-hover);
+}
+
+input, select {
+  box-sizing: border-box;
 }
 
 .entry {
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   padding: 10px;
   margin-top: 10px;
+  background-color: var(--section-bg);
+  border-radius: 4px;
+}
+
+.entry-buttons {
+  display: flex;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.entry-buttons button {
+  flex: 1;
+  width: auto;
+  margin: 0;
+  padding: 8px;
+  font-size: 14px;
 }
 
 #signatureCanvas {
-  border: 2px solid #333;
+  border: 2px solid var(--border-color);
   display: block;
   margin: 10px 0;
   touch-action: none;
-  background: white;
+  background: var(--input-bg);
   cursor: crosshair;
   width: 100%;
   max-width: 400px;
+  border-radius: 4px;
 }
 
 .signature-section {
   margin-top: 20px;
   padding: 15px;
-  border: 1px solid #ddd;
-  background: #f9f9f9;
+  border: 1px solid var(--border-color);
+  background: var(--section-bg);
+  border-radius: 4px;
 }
 
 .button-group {
@@ -52,13 +113,121 @@ input, select, button {
 .button-group button {
   flex: 1;
   width: auto;
+  margin: 0;
+}
+
+.header-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.header-controls button {
+  flex: 1;
+  width: auto;
+  margin: 0;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.week-badge {
+  background-color: #4CAF50;
+  color: white;
+  padding: 12px;
+  border-radius: 4px;
+  text-align: center;
+  margin: 10px 0;
+  font-weight: bold;
+}
+
+.edit-modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  overflow: auto;
+}
+
+.edit-modal-content {
+  background-color: var(--bg-color);
+  margin: 10% auto;
+  padding: 20px;
+  border: 1px solid var(--border-color);
+  width: 90%;
+  max-width: 400px;
+  border-radius: 4px;
+}
+
+.edit-modal-content input, .edit-modal-content select {
+  margin: 10px 0;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.modal-buttons button {
+  flex: 1;
+  width: auto;
+  margin: 0;
+}
+
+.close {
+  color: var(--text-color);
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover {
+  opacity: 0.7;
+}
+
+.status-message {
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 4px;
+  text-align: center;
+  display: none;
+}
+
+.status-message.success {
+  background-color: #4CAF50;
+  color: white;
+  display: block;
+}
+
+.status-message.error {
+  background-color: #f44336;
+  color: white;
+  display: block;
 }
 </style>
 </head>
 
 <body>
 
+<div class="header-controls">
+  <button id="darkModeBtn" type="button">🌙 Dark Mode</button>
+  <button id="exportBtn" type="button">📥 Export CSV</button>
+  <button id="resetBtn" type="button">🔄 Reset All</button>
+</div>
+
 <h2>Cabling Logbook</h2>
+
+<div id="statusMsg" class="status-message"></div>
+
+<!-- Week Summary -->
+<div class="week-badge">
+  📅 Week Hours: <span id="weekHours">0</span> / 40
+</div>
 
 <!-- Details -->
 <input id="name" placeholder="Your Name">
@@ -110,11 +279,46 @@ input, select, button {
 
 <div id="list"></div>
 
+<!-- EDIT MODAL -->
+<div id="editModal" class="edit-modal">
+  <div class="edit-modal-content">
+    <span class="close">&times;</span>
+    <h3>Edit Entry</h3>
+    <input id="editDate" type="date">
+    <input id="editJob" placeholder="Job">
+    <input id="editWork" placeholder="Work">
+    <input id="editHours" type="number" placeholder="Hours">
+    <select id="editCable">
+      <option>Cat5e</option>
+      <option>Cat6</option>
+      <option>Cat6A</option>
+    </select>
+    <select id="editTask">
+      <option>Cable Installation</option>
+      <option>Terminate Outlets Field</option>
+      <option>Terminate Outlets Rack</option>
+      <option>Patching</option>
+      <option>Testing/Certifying</option>
+    </select>
+    <div class="modal-buttons">
+      <button id="saveEditBtn" type="button">✅ Save</button>
+      <button id="cancelEditBtn" type="button">❌ Cancel</button>
+    </div>
+  </div>
+</div>
+
 <script>
 
 // ✅ LOAD SAVED DATA
 let entries = JSON.parse(localStorage.getItem("logbook")) || [];
 let supervisorData = JSON.parse(localStorage.getItem("supervisorData")) || {};
+let editingIndex = -1;
+
+// ✅ DARK MODE
+document.getElementById("darkModeBtn").onclick = function () {
+  document.body.classList.toggle("dark-mode");
+  localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
+};
 
 // ✅ CANVAS SIGNATURE
 const canvas = document.getElementById("signatureCanvas");
@@ -170,7 +374,7 @@ document.getElementById("saveSigBtn").onclick = function () {
   const licenceNumber = document.getElementById("licenceNumber").value.trim();
 
   if (!supervisorName || !licenceNumber) {
-    alert("Enter Supervisor Name and Licence Number");
+    showStatus("Enter Supervisor Name and Licence Number", "error");
     return;
   }
 
@@ -186,8 +390,116 @@ document.getElementById("saveSigBtn").onclick = function () {
   document.getElementById("sigStatus").innerText = "✅ Signature saved!";
 };
 
+// ✅ SHOW STATUS MESSAGE
+function showStatus(message, type) {
+  const msg = document.getElementById("statusMsg");
+  msg.innerText = message;
+  msg.className = `status-message ${type}`;
+  setTimeout(() => {
+    msg.className = "status-message";
+  }, 3000);
+}
+
+// ✅ EXPORT CSV
+document.getElementById("exportBtn").onclick = function () {
+  if (entries.length === 0) {
+    showStatus("No entries to export", "error");
+    return;
+  }
+
+  let csv = "Date,Job,Work,Cable,Task,Hours\n";
+  entries.forEach(e => {
+    csv += `"${e.date}","${e.job}","${e.work}","${e.cable}","${e.task}",${e.hours}\n`;
+  });
+
+  const link = document.createElement("a");
+  link.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
+  link.download = "logbook_export_" + new Date().toISOString().split("T")[0] + ".csv";
+  link.click();
+  
+  showStatus("CSV exported successfully", "success");
+};
+
+// ✅ RESET ALL DATA
+document.getElementById("resetBtn").onclick = function () {
+  if (confirm("⚠️ ARE YOU SURE? This will delete ALL entries, signature, and data. This cannot be undone!")) {
+    if (confirm("Last chance to cancel. Delete EVERYTHING?")) {
+      entries = [];
+      supervisorData = {};
+      signatureImage = null;
+      localStorage.removeItem("logbook");
+      localStorage.removeItem("supervisorData");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      document.getElementById("supervisorName").value = "";
+      document.getElementById("licenceNumber").value = "";
+      document.getElementById("sigStatus").innerText = "";
+      render();
+      showStatus("All data cleared", "success");
+    }
+  }
+};
+
+// ✅ EDIT MODAL
+const editModal = document.getElementById("editModal");
+const closeBtn = document.querySelector(".close");
+
+closeBtn.onclick = function () {
+  editModal.style.display = "none";
+};
+
+window.onclick = function (event) {
+  if (event.target == editModal) {
+    editModal.style.display = "none";
+  }
+};
+
+// ✅ OPEN EDIT MODAL
+function openEditModal(index) {
+  editingIndex = index;
+  const e = entries[index];
+  
+  document.getElementById("editDate").value = e.date;
+  document.getElementById("editJob").value = e.job;
+  document.getElementById("editWork").value = e.work;
+  document.getElementById("editHours").value = e.hours;
+  document.getElementById("editCable").value = e.cable;
+  document.getElementById("editTask").value = e.task;
+  
+  editModal.style.display = "block";
+}
+
+// ✅ SAVE EDIT
+document.getElementById("saveEditBtn").onclick = function () {
+  const date = document.getElementById("editDate").value;
+  const job = document.getElementById("editJob").value;
+  const work = document.getElementById("editWork").value;
+  const cable = document.getElementById("editCable").value;
+  const task = document.getElementById("editTask").value;
+  const hours = parseFloat(document.getElementById("editHours").value);
+
+  if (!hours || hours <= 0) {
+    showStatus("Enter valid hours", "error");
+    return;
+  }
+
+  entries[editingIndex] = { date, job, work, cable, task, hours };
+  saveData();
+  render();
+  editModal.style.display = "none";
+  showStatus("Entry updated", "success");
+};
+
+document.getElementById("cancelEditBtn").onclick = function () {
+  editModal.style.display = "none";
+};
+
 // ✅ AUTO DATE
 window.onload = function () {
+  // Load dark mode preference
+  if (localStorage.getItem("darkMode") === "true") {
+    document.body.classList.add("dark-mode");
+  }
+
   let today = new Date().toISOString().split("T")[0];
   document.getElementById("date").value = today;
 
@@ -204,12 +516,33 @@ window.onload = function () {
     }
   }
 
-  render(); // ✅ load saved entries on start
+  render();
 };
 
 // ✅ SAVE FUNCTION
 function saveData() {
   localStorage.setItem("logbook", JSON.stringify(entries));
+}
+
+// ✅ GET WEEK TOTALS
+function getWeekTotal() {
+  const today = new Date();
+  const weekStart = new Date(today);
+  weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+  weekStart.setHours(0, 0, 0, 0);
+
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekEnd.getDate() + 6);
+  weekEnd.setHours(23, 59, 59, 999);
+
+  let total = 0;
+  entries.forEach(e => {
+    const entryDate = new Date(e.date);
+    if (entryDate >= weekStart && entryDate <= weekEnd) {
+      total += e.hours;
+    }
+  });
+  return total;
 }
 
 // ✅ ADD ENTRY
@@ -223,14 +556,21 @@ document.getElementById("addBtn").onclick = function () {
   let hours = parseFloat(document.getElementById("hours").value);
 
   if (!hours || hours <= 0) {
-    alert("Enter valid hours");
+    showStatus("Enter valid hours", "error");
     return;
   }
 
   entries.push({ date, job, work, cable, task, hours });
 
-  saveData();   // ✅ autosave
+  saveData();
   render();
+  
+  // Clear form
+  document.getElementById("job").value = "";
+  document.getElementById("work").value = "";
+  document.getElementById("hours").value = "";
+  
+  showStatus("Entry added", "success");
 };
 
 // ✅ DISPLAY
@@ -240,6 +580,7 @@ function render() {
   list.innerHTML = "";
 
   let total = 0;
+  let weekTotal = getWeekTotal();
 
   entries.forEach(function(e, index) {
 
@@ -252,29 +593,45 @@ function render() {
       "<b>" + e.date + "</b> - " + e.job +
       "<br>" + e.work +
       "<br>" + e.cable + " | " + e.task +
-      " | " + e.hours + " hrs" +
-      "<br><button onclick='deleteEntry(" + index + ")'>❌ Delete</button>";
+      " | " + e.hours + " hrs";
 
+    const buttonsDiv = document.createElement("div");
+    buttonsDiv.className = "entry-buttons";
+    
+    const editBtn = document.createElement("button");
+    editBtn.textContent = "✏️ Edit";
+    editBtn.onclick = () => openEditModal(index);
+    
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "❌ Delete";
+    deleteBtn.onclick = () => deleteEntry(index);
+    
+    buttonsDiv.appendChild(editBtn);
+    buttonsDiv.appendChild(deleteBtn);
+    
+    div.appendChild(buttonsDiv);
     list.appendChild(div);
   });
 
   document.getElementById("total").innerText = total;
+  document.getElementById("weekHours").innerText = weekTotal;
 }
 
 function deleteEntry(index) {
 
-  // remove 1 item at position index
-  entries.splice(index, 1);
-
-  saveData(); // ✅ keep autosave updated
-  render();   // ✅ refresh screen
+  if (confirm("Delete this entry? This cannot be undone.")) {
+    entries.splice(index, 1);
+    saveData();
+    render();
+    showStatus("Entry deleted", "success");
+  }
 }
 
 // ✅ PRINT
 document.getElementById("printBtn").onclick = function () {
 
   if (!signatureImage) {
-    alert("Supervisor must sign before printing");
+    showStatus("Supervisor must sign before printing", "error");
     return;
   }
 
@@ -351,7 +708,6 @@ document.getElementById("printBtn").onclick = function () {
 
     "</body></html>";
 
-  // ✅ THIS IS THE KEY CHANGE (Safari works properly)
   document.open();
   document.write(content);
   document.close();
