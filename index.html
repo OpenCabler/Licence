@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cabling Logbook</title>
 
 <style>
@@ -27,35 +28,67 @@ body.dark-mode {
 
 * {
   color: var(--text-color);
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
 }
 
 body {
-  font-family: Arial;
-  max-width: 600px;
+  font-family: Arial, sans-serif;
+  max-width: 800px;
   margin: auto;
-  padding: 20px;
+  padding: 15px;
   background-color: var(--bg-color);
   transition: background-color 0.3s, color 0.3s;
+  font-size: 16px;
+}
+
+h1, h2, h3 {
+  margin: 15px 0 10px 0;
+}
+
+h2 {
+  font-size: 24px;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+p {
+  margin: 8px 0;
+  font-size: 16px;
 }
 
 input, select, button {
   width: 100%;
-  margin: 6px 0;
-  padding: 10px;
+  margin: 8px 0;
+  padding: 14px;
   font-size: 16px;
   background-color: var(--input-bg);
-  border: 1px solid var(--input-border);
+  border: 2px solid var(--input-border);
   color: var(--text-color);
-  border-radius: 4px;
+  border-radius: 6px;
+  font-family: Arial, sans-serif;
 }
 
 button {
   cursor: pointer;
   transition: background-color 0.2s;
+  font-weight: bold;
+  min-height: 48px;
 }
 
 button:hover {
   background-color: var(--button-hover);
+}
+
+button:active {
+  transform: scale(0.98);
 }
 
 input, select {
@@ -63,81 +96,97 @@ input, select {
 }
 
 .entry {
-  border: 1px solid var(--border-color);
-  padding: 10px;
-  margin-top: 10px;
+  border: 2px solid var(--border-color);
+  padding: 15px;
+  margin-top: 12px;
   background-color: var(--section-bg);
-  border-radius: 4px;
+  border-radius: 6px;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.entry b {
+  font-size: 17px;
+  display: block;
+  margin-bottom: 8px;
 }
 
 .entry-buttons {
   display: flex;
-  gap: 5px;
-  margin-top: 8px;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 .entry-buttons button {
   flex: 1;
   width: auto;
   margin: 0;
-  padding: 8px;
+  padding: 12px;
   font-size: 14px;
+  min-height: 44px;
 }
 
 #signatureCanvas {
   border: 2px solid var(--border-color);
   display: block;
-  margin: 10px 0;
+  margin: 15px auto;
   touch-action: none;
   background: var(--input-bg);
   cursor: crosshair;
   width: 100%;
-  max-width: 400px;
-  border-radius: 4px;
+  max-width: 100%;
+  height: 200px;
+  border-radius: 6px;
 }
 
 .signature-section {
-  margin-top: 20px;
-  padding: 15px;
-  border: 1px solid var(--border-color);
+  margin-top: 25px;
+  padding: 18px;
+  border: 2px solid var(--border-color);
   background: var(--section-bg);
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
 .button-group {
   display: flex;
-  gap: 10px;
-  margin: 10px 0;
+  gap: 12px;
+  margin: 15px 0;
 }
 
 .button-group button {
   flex: 1;
   width: auto;
   margin: 0;
+  padding: 12px;
+  min-height: 44px;
 }
 
 .header-controls {
   display: flex;
   gap: 10px;
   margin-bottom: 15px;
+  flex-wrap: wrap;
 }
 
 .header-controls button {
   flex: 1;
+  min-width: 120px;
   width: auto;
   margin: 0;
-  padding: 8px;
+  padding: 12px;
   font-size: 14px;
+  min-height: 44px;
 }
 
 .week-badge {
   background-color: #4CAF50;
   color: white;
-  padding: 12px;
-  border-radius: 4px;
+  padding: 18px;
+  border-radius: 6px;
   text-align: center;
-  margin: 10px 0;
+  margin: 15px 0;
   font-weight: bold;
+  font-size: 18px;
 }
 
 .edit-modal {
@@ -150,38 +199,41 @@ input, select {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   overflow: auto;
+  padding: 20px;
 }
 
 .edit-modal-content {
   background-color: var(--bg-color);
-  margin: 10% auto;
+  margin: 20px auto;
   padding: 20px;
-  border: 1px solid var(--border-color);
-  width: 90%;
-  max-width: 400px;
-  border-radius: 4px;
+  border: 2px solid var(--border-color);
+  width: 100%;
+  max-width: 500px;
+  border-radius: 6px;
 }
 
 .edit-modal-content input, .edit-modal-content select {
-  margin: 10px 0;
+  margin: 12px 0;
+  font-size: 16px;
 }
 
 .modal-buttons {
   display: flex;
-  gap: 10px;
-  margin-top: 15px;
+  gap: 12px;
+  margin-top: 20px;
 }
 
 .modal-buttons button {
   flex: 1;
   width: auto;
   margin: 0;
+  min-height: 44px;
 }
 
 .close {
   color: var(--text-color);
   float: right;
-  font-size: 28px;
+  font-size: 32px;
   font-weight: bold;
   cursor: pointer;
 }
@@ -191,11 +243,13 @@ input, select {
 }
 
 .status-message {
-  padding: 10px;
-  margin: 10px 0;
-  border-radius: 4px;
+  padding: 15px;
+  margin: 12px 0;
+  border-radius: 6px;
   text-align: center;
   display: none;
+  font-size: 16px;
+  font-weight: bold;
 }
 
 .status-message.success {
@@ -209,15 +263,60 @@ input, select {
   color: white;
   display: block;
 }
+
+hr {
+  margin: 20px 0;
+  border: none;
+  border-top: 1px solid var(--border-color);
+}
+
+#total {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* Tablet and up */
+@media (min-width: 768px) {
+  body {
+    padding: 30px;
+    font-size: 16px;
+  }
+  
+  .header-controls button {
+    min-width: auto;
+  }
+  
+  #signatureCanvas {
+    height: 150px;
+    max-width: 400px;
+  }
+}
+
+/* Landscape phone optimization */
+@media (max-height: 500px) {
+  .header-controls {
+    margin-bottom: 8px;
+  }
+  
+  .entry {
+    padding: 12px;
+    margin-top: 8px;
+  }
+  
+  input, select, button {
+    margin: 6px 0;
+    padding: 10px;
+  }
+}
 </style>
 </head>
 
 <body>
 
 <div class="header-controls">
-  <button id="darkModeBtn" type="button">🌙 Dark Mode</button>
-  <button id="exportBtn" type="button">📥 Export CSV</button>
-  <button id="resetBtn" type="button">🔄 Reset All</button>
+  <button id="darkModeBtn" type="button">🌙 Dark</button>
+  <button id="exportBtn" type="button">📥 Export</button>
+  <button id="resetBtn" type="button">🔄 Reset</button>
 </div>
 
 <h2>Cabling Logbook</h2>
@@ -230,16 +329,16 @@ input, select {
 </div>
 
 <!-- Details -->
-<input id="name" placeholder="Your Name">
-<input id="employer" placeholder="Employer">
+<input id="name" placeholder="Your Name" type="text">
+<input id="employer" placeholder="Employer" type="text">
 
 <hr>
 
 <!-- ✅ Auto date -->
 <input id="date" type="date">
-<input id="job" placeholder="Job">
-<input id="work" placeholder="Work">
-<input id="hours" type="number" placeholder="Hours">
+<input id="job" placeholder="Job" type="text">
+<input id="work" placeholder="Work" type="text">
+<input id="hours" type="number" placeholder="Hours" step="0.5" min="0">
 
 <select id="cable">
   <option>Cat5e</option>
@@ -255,22 +354,22 @@ input, select {
   <option>Testing/Certifying</option>
 </select>
 
-<button id="addBtn" type="button">Add Entry</button>
+<button id="addBtn" type="button">➕ Add Entry</button>
 
-<h3>Total: <span id="total">0</span></h3>
+<h3>Total: <span id="total">0</span> hrs</h3>
 
 <!-- ✅ SUPERVISOR SIGNATURE SECTION -->
 <div class="signature-section">
   <h3>Supervisor Sign-Off</h3>
-  <input id="supervisorName" placeholder="Supervisor Name">
-  <input id="licenceNumber" placeholder="Licence Number">
+  <input id="supervisorName" placeholder="Supervisor Name" type="text">
+  <input id="licenceNumber" placeholder="Licence Number" type="text">
   
   <p><b>Signature:</b></p>
-  <canvas id="signatureCanvas" width="400" height="150"></canvas>
+  <canvas id="signatureCanvas" width="400" height="200"></canvas>
   
   <div class="button-group">
     <button id="clearSigBtn" type="button">🔄 Clear</button>
-    <button id="saveSigBtn" type="button">✅ Save Signature</button>
+    <button id="saveSigBtn" type="button">✅ Save Sig</button>
   </div>
   <p id="sigStatus"></p>
 </div>
@@ -285,9 +384,9 @@ input, select {
     <span class="close">&times;</span>
     <h3>Edit Entry</h3>
     <input id="editDate" type="date">
-    <input id="editJob" placeholder="Job">
-    <input id="editWork" placeholder="Work">
-    <input id="editHours" type="number" placeholder="Hours">
+    <input id="editJob" placeholder="Job" type="text">
+    <input id="editWork" placeholder="Work" type="text">
+    <input id="editHours" type="number" placeholder="Hours" step="0.5" min="0">
     <select id="editCable">
       <option>Cat5e</option>
       <option>Cat6</option>
@@ -326,6 +425,30 @@ const ctx = canvas.getContext("2d");
 let isDrawing = false;
 let signatureImage = supervisorData.signature || null;
 
+// Scale canvas for high DPI displays
+function resizeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  
+  // Redraw signature if exists
+  if (signatureImage) {
+    const img = new Image();
+    img.onload = function () {
+      ctx.drawImage(img, 0, 0, rect.width, rect.height);
+    };
+    img.src = signatureImage;
+  }
+}
+
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+
 // Touch and mouse support
 function startDrawing(e) {
   isDrawing = true;
@@ -338,12 +461,10 @@ function startDrawing(e) {
 
 function draw(e) {
   if (!isDrawing) return;
+  e.preventDefault();
   const rect = canvas.getBoundingClientRect();
   const x = (e.clientX || e.touches[0].clientX) - rect.left;
   const y = (e.clientY || e.touches[0].clientY) - rect.top;
-  ctx.lineWidth = 2;
-  ctx.lineCap = "round";
-  ctx.lineJoin = "round";
   ctx.lineTo(x, y);
   ctx.stroke();
 }
@@ -677,7 +798,7 @@ document.getElementById("printBtn").onclick = function () {
   });
 
   let content =
-    "<html><body style='font-family:Arial;padding:30px'>" +
+    "<html><body style='font-family:Arial;padding:30px;font-size:16px'>" +
 
     "<h1 style='text-align:center'>CABLING LOGBOOK</h1>" +
 
@@ -688,7 +809,7 @@ document.getElementById("printBtn").onclick = function () {
 
     "<h3>Work Log</h3>" +
 
-    "<table border='1' style='width:100%;border-collapse:collapse'>" +
+    "<table border='1' style='width:100%;border-collapse:collapse;font-size:14px'>" +
     "<tr><th>Date</th><th>Job</th><th>Work</th><th>Cable</th><th>Task</th><th>Hours</th></tr>" +
     rows +
     "</table>" +
