@@ -901,7 +901,7 @@ function renderWeeksList() {
     weekSection.appendChild(sigSection);
   }
 
-  // Action buttons - View and Print
+  // Action buttons - View for Print only
   const actionDiv = document.createElement("div");
   actionDiv.className = "action-buttons";
   
@@ -909,16 +909,7 @@ function renderWeeksList() {
   viewBtn.textContent = "👁️ View for Print";
   viewBtn.onclick = () => generatePrintContent(currentWeek);
   
-  const printBtn = document.createElement("button");
-  printBtn.textContent = "📄 Print Week";
-  printBtn.onclick = () => printWeek();
-  if (!isSigned) {
-    printBtn.disabled = true;
-    printBtn.style.opacity = "0.5";
-  }
-  
   actionDiv.appendChild(viewBtn);
-  actionDiv.appendChild(printBtn);
   weekSection.appendChild(actionDiv);
 
   weeksList.appendChild(weekSection);
@@ -1031,7 +1022,7 @@ function saveSignature(weekStart) {
   }, 500);
 }
 
-// ✅ GENERATE PRINT CONTENT - Stores content and opens print dialog
+// ✅ GENERATE PRINT CONTENT
 function generatePrintContent(weekStart) {
   const sigData = weeklySignatures[weekStart];
   if (!sigData || !sigData.signature) {
@@ -1058,7 +1049,7 @@ function generatePrintContent(weekStart) {
   });
 
   let content =
-    "<html><head><style>body { font-family: Arial, sans-serif; padding: 20px; line-height: 1.6; } table { width: 100%; border-collapse: collapse; margin: 20px 0; } th, td { border: 1px solid #000; padding: 10px; text-align: left; } th { background-color: #f0f0f0; font-weight: bold; } .header { margin-bottom: 30px; } .totals { margin: 20px 0; font-weight: bold; } .signature-section { margin-top: 40px; } .signature-img { border: 1px solid #000; max-width: 300px; height: auto; margin: 10px 0; } .print-button { background-color: #4CAF50; color: white; padding: 12px 24px; font-size: 16px; border: none; border-radius: 4px; cursor: pointer; margin-top: 20px; } .print-button:hover { background-color: #45a049; }</style></head><body>" +
+    "<html><head><style>body { font-family: Arial, sans-serif; padding: 20px; line-height: 1.6; color: #000; } table { width: 100%; border-collapse: collapse; margin: 20px 0; } th, td { border: 1px solid #000; padding: 10px; text-align: left; } th { background-color: #f0f0f0; font-weight: bold; } .header { margin-bottom: 30px; } .totals { margin: 20px 0; font-weight: bold; } .signature-section { margin-top: 40px; } .signature-img { border: 1px solid #000; max-width: 300px; height: auto; margin: 10px 0; } .print-button { background-color: #4CAF50; color: white; padding: 12px 24px; font-size: 16px; border: none; border-radius: 4px; cursor: pointer; margin-top: 20px; } .print-button:hover { background-color: #45a049; } h1, h2, h3 { color: #000; } p { color: #000; }</style></head><body>" +
 
     "<div class='header'>" +
     "<h1 style='text-align: center; margin-bottom: 30px;'>CABLING LOGBOOK - WEEKLY REPORT</h1>" +
@@ -1099,23 +1090,6 @@ function generatePrintContent(weekStart) {
   printWindow.document.close();
   
   showStatus("Print preview opened - use the Print button or Ctrl+P", "success");
-}
-
-// ✅ PRINT WEEK - Uses browser print dialog
-function printWeek() {
-  if (!currentWeek) {
-    showStatus("No week selected", "error");
-    return;
-  }
-
-  const sigData = weeklySignatures[currentWeek];
-  if (!sigData || !sigData.signature) {
-    showStatus("Supervisor must sign before printing", "error");
-    return;
-  }
-
-  // Generate print content and trigger print
-  generatePrintContent(currentWeek);
 }
 
 </script>
