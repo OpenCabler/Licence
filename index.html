@@ -917,7 +917,7 @@ function renderWeeksList() {
       <input id="sup-name-${currentWeek}" placeholder="Supervisor Name" type="text" value="">
       <input id="sup-licence-${currentWeek}" placeholder="Licence Number" type="text" value="">
       <p><b>Signature:</b></p>
-      <canvas id="sig-canvas-${currentWeek}" class="sig-canvas"></canvas></canvas>
+      <canvas id="sig-canvas-${currentWeek}" class="sig-canvas" width="350" height="150"></canvas>
       <div class="button-group">
         <button onclick="clearSignature('${currentWeek}')" type="button">🔄 Clear</button>
         <button onclick="saveSignature('${currentWeek}')" type="button">✅ Save Sig</button>
@@ -942,9 +942,10 @@ function renderWeeksList() {
 
   // Setup canvas if not signed
   if (!isSigned) {
-    setTimeout(() => {
-      setupCanvas(currentWeek, null);
-    }, 100);
+  requestAnimationFrame(() => {
+    setupCanvas(currentWeek, null);
+  });
+
   }
 }
 
