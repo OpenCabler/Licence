@@ -396,7 +396,7 @@ body.dark-mode .info-box {
   body {
     padding: 0;
   }
-  .header-controls, .info-box, .week-selector, .signature-section, .action-buttons, .entry-buttons, #addBtn {
+  .header-controls, .info-box, .week-selector, .signature-section, .action-buttons, .entry-buttons, #addBtn, .print-controls {
     display: none !important;
   }
   .week-section {
@@ -1075,8 +1075,12 @@ function generatePrintContent(weekStart) {
   });
 
   let content =
-    "<html><head><meta charset='UTF-8'><title>Cabling Logbook</title></head>" +
+    "<html><head><meta charset='UTF-8'><title>Cabling Logbook</title><style>@media print { .print-controls { display: none !important; } }</style></head>" +
     "<body style='font-family:Arial;padding:30px'>" +
+    "<div class='print-controls' style='margin-bottom:20px;'>" +
+    "<button onclick='window.print()' style='padding:12px 24px;font-size:16px;cursor:pointer;'>🖨️ Print</button> " +
+    "<button onclick='window.close()' style='padding:12px 24px;font-size:16px;cursor:pointer;'>❌ Close</button>" +
+    "</div>" +
     "<h1 style='text-align:center'>CABLING LOGBOOK</h1>" +
     "<p><b>Name:</b> " + document.getElementById("name").value + "</p>" +
     "<p><b>Employer:</b> " + document.getElementById("employer").value + "</p>" +
@@ -1104,13 +1108,12 @@ function generatePrintContent(weekStart) {
       "<div style='border:1px solid black;height:80px;width:250px'></div>";
   }
 
-  content += "<br><p style='text-align:center;'><b>Tap Share → Print to save PDF</b></p>" +
+  content += "<br><p style='text-align:center;'><b>Use Print button above or Ctrl+P to save as PDF</b></p>" +
     "</body></html>";
 
   const w = window.open("");
   w.document.write(content);
   w.document.close();
-  setTimeout(() => w.print(), 500);
 }
 
 </script>
