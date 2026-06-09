@@ -680,7 +680,7 @@ document.getElementById("cancelEditBtn").onclick = function () {
   editModal.style.display = "none";
 };
 
-// ✅ AUTO DATE & LOAD EMPLOYER
+// ✅ AUTO DATE & LOAD NAME AND EMPLOYER
 window.onload = function () {
   if (localStorage.getItem("darkMode") === "true") {
     document.body.classList.add("dark-mode");
@@ -688,6 +688,12 @@ window.onload = function () {
 
   let today = new Date().toISOString().split("T")[0];
   document.getElementById("date").value = today;
+  
+  // ✅ LOAD NAME FROM STORAGE
+  let savedName = localStorage.getItem("userName");
+  if (savedName) {
+    document.getElementById("name").value = savedName;
+  }
   
   // ✅ LOAD EMPLOYER FROM STORAGE
   let savedEmployer = localStorage.getItem("employer");
@@ -697,6 +703,11 @@ window.onload = function () {
   
   currentWeek = getWeekStart(today);
   render();
+};
+
+// ✅ SAVE NAME ON CHANGE
+document.getElementById("name").onchange = function () {
+  localStorage.setItem("userName", this.value);
 };
 
 // ✅ SAVE EMPLOYER ON CHANGE
