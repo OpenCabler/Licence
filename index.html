@@ -220,6 +220,10 @@ input, select {
 }
 
 .signature-section {
+  overflow-x: hidden;
+}
+
+.signature-section {
   margin-top: 15px;
   padding: 15px;
   border: 2px solid var(--border-color);
@@ -913,7 +917,7 @@ function renderWeeksList() {
       <input id="sup-name-${currentWeek}" placeholder="Supervisor Name" type="text" value="">
       <input id="sup-licence-${currentWeek}" placeholder="Licence Number" type="text" value="">
       <p><b>Signature:</b></p>
-      <canvas id="sig-canvas-${currentWeek}" width="400" height="150" style="border: 2px solid var(--border-color); display: block; margin: 10px auto; touch-action: none; background: var(--input-bg); cursor: crosshair;"></canvas>
+      <canvas id="sig-canvas-${currentWeek}" class="sig-canvas"></canvas></canvas>
       <div class="button-group">
         <button onclick="clearSignature('${currentWeek}')" type="button">🔄 Clear</button>
         <button onclick="saveSignature('${currentWeek}')" type="button">✅ Save Sig</button>
@@ -952,31 +956,26 @@ function setupCanvas(weekStart, existingSignature) {
   if (!canvas) return;
 
   const ctx = canvas.getContext("2d");
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+
+  // ✅ Fix scaling issue
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+
+  ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform
+  ctx.scale(dpr, dpr);
+
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
   canvasState[weekStart] = {
     canvas,
     ctx,
     isDrawing: false,
     signatureImage: existingSignature || null
   };
-
-  // Scale canvas for high DPI
-  const dpr = window.devicePixelRatio || 1;
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
-  ctx.scale(dpr, dpr);
-  ctx.lineWidth = 2;
-  ctx.lineCap = "round";
-  ctx.lineJoin = "round";
-
-  // Redraw existing signature
-  if (existingSignature) {
-    const img = new Image();
-    img.onload = function () {
-      ctx.drawImage(img, 0, 0, rect.width, rect.height);
-    };
-    img.src = existingSignature;
-  }
 
   function startDrawing(e) {
     canvasState[weekStart].isDrawing = true;
@@ -1008,8 +1007,9 @@ function setupCanvas(weekStart, existingSignature) {
 
   canvas.addEventListener("touchstart", (e) => { e.preventDefault(); startDrawing(e); });
   canvas.addEventListener("touchmove", (e) => { e.preventDefault(); draw(e); });
-  canvas.addEventListener("touchend", (e) => { e.preventDefault(); stopDrawing(); });
+  canvas.addEventListener("touchend", () => stopDrawing());
 }
+``
 
 function clearSignature(weekStart) {
   if (!canvasState[weekStart]) return;
