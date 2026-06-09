@@ -24,6 +24,35 @@ input, select, button {
   padding: 10px;
   margin-top: 10px;
 }
+
+#signatureCanvas {
+  border: 2px solid #333;
+  display: block;
+  margin: 10px 0;
+  touch-action: none;
+  background: white;
+  cursor: crosshair;
+  width: 100%;
+  max-width: 400px;
+}
+
+.signature-section {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  background: #f9f9f9;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.button-group button {
+  flex: 1;
+  width: auto;
+}
 </style>
 </head>
 
@@ -61,6 +90,22 @@ input, select, button {
 
 <h3>Total: <span id="total">0</span></h3>
 
+<!-- ✅ SUPERVISOR SIGNATURE SECTION -->
+<div class="signature-section">
+  <h3>Supervisor Sign-Off</h3>
+  <input id="supervisorName" placeholder="Supervisor Name">
+  <input id="licenceNumber" placeholder="Licence Number">
+  
+  <p><b>Signature:</b></p>
+  <canvas id="signatureCanvas" width="400" height="150"></canvas>
+  
+  <div class="button-group">
+    <button id="clearSigBtn" type="button">🔄 Clear</button>
+    <button id="saveSigBtn" type="button">✅ Save Signature</button>
+  </div>
+  <p id="sigStatus"></p>
+</div>
+
 <button id="printBtn" type="button">📄 Print Logbook</button>
 
 <div id="list"></div>
@@ -69,11 +114,95 @@ input, select, button {
 
 // ✅ LOAD SAVED DATA
 let entries = JSON.parse(localStorage.getItem("logbook")) || [];
+let supervisorData = JSON.parse(localStorage.getItem("supervisorData")) || {};
+
+// ✅ CANVAS SIGNATURE
+const canvas = document.getElementById("signatureCanvas");
+const ctx = canvas.getContext("2d");
+let isDrawing = false;
+let signatureImage = supervisorData.signature || null;
+
+// Touch and mouse support
+function startDrawing(e) {
+  isDrawing = true;
+  const rect = canvas.getBoundingClientRect();
+  const x = (e.clientX || e.touches[0].clientX) - rect.left;
+  const y = (e.clientY || e.touches[0].clientY) - rect.top;
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+}
+
+function draw(e) {
+  if (!isDrawing) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = (e.clientX || e.touches[0].clientX) - rect.left;
+  const y = (e.clientY || e.touches[0].clientY) - rect.top;
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.lineTo(x, y);
+  ctx.stroke();
+}
+
+function stopDrawing() {
+  isDrawing = false;
+}
+
+canvas.addEventListener("mousedown", startDrawing);
+canvas.addEventListener("mousemove", draw);
+canvas.addEventListener("mouseup", stopDrawing);
+canvas.addEventListener("mouseout", stopDrawing);
+
+canvas.addEventListener("touchstart", (e) => { e.preventDefault(); startDrawing(e); });
+canvas.addEventListener("touchmove", (e) => { e.preventDefault(); draw(e); });
+canvas.addEventListener("touchend", (e) => { e.preventDefault(); stopDrawing(); });
+
+// ✅ CLEAR SIGNATURE
+document.getElementById("clearSigBtn").onclick = function () {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  signatureImage = null;
+  document.getElementById("sigStatus").innerText = "";
+};
+
+// ✅ SAVE SIGNATURE
+document.getElementById("saveSigBtn").onclick = function () {
+  const supervisorName = document.getElementById("supervisorName").value.trim();
+  const licenceNumber = document.getElementById("licenceNumber").value.trim();
+
+  if (!supervisorName || !licenceNumber) {
+    alert("Enter Supervisor Name and Licence Number");
+    return;
+  }
+
+  signatureImage = canvas.toDataURL("image/png");
+  supervisorData = {
+    name: supervisorName,
+    licence: licenceNumber,
+    signature: signatureImage,
+    date: new Date().toISOString()
+  };
+
+  localStorage.setItem("supervisorData", JSON.stringify(supervisorData));
+  document.getElementById("sigStatus").innerText = "✅ Signature saved!";
+};
 
 // ✅ AUTO DATE
 window.onload = function () {
   let today = new Date().toISOString().split("T")[0];
   document.getElementById("date").value = today;
+
+  // Load supervisor data if exists
+  if (supervisorData.name) {
+    document.getElementById("supervisorName").value = supervisorData.name;
+    document.getElementById("licenceNumber").value = supervisorData.licence;
+    if (supervisorData.signature) {
+      const img = new Image();
+      img.onload = function () {
+        ctx.drawImage(img, 0, 0);
+      };
+      img.src = supervisorData.signature;
+    }
+  }
 
   render(); // ✅ load saved entries on start
 };
@@ -131,6 +260,7 @@ function render() {
 
   document.getElementById("total").innerText = total;
 }
+
 function deleteEntry(index) {
 
   // remove 1 item at position index
@@ -142,6 +272,11 @@ function deleteEntry(index) {
 
 // ✅ PRINT
 document.getElementById("printBtn").onclick = function () {
+
+  if (!signatureImage) {
+    alert("Supervisor must sign before printing");
+    return;
+  }
 
   let selectedDate = document.getElementById("date").value || new Date().toISOString().split("T")[0];
 
@@ -207,10 +342,10 @@ document.getElementById("printBtn").onclick = function () {
     "<p><b>Week Ending:</b> " + weekEnding + "</p>" +
     "<p><b>Total Hours This Week:</b> " + weeklyTotal + "</p>" +
 
-    "<p>Supervisor Name: __________</p>" +
-    "<p>Licence Number: __________</p>" +
-    "<p>Signature:</p>" +
-    "<div style='border:1px solid black;height:80px;width:250px'></div>" +
+    "<p><b>Supervisor Name:</b> " + supervisorData.name + "</p>" +
+    "<p><b>Licence Number:</b> " + supervisorData.licence + "</p>" +
+    "<p><b>Signature:</b></p>" +
+    "<img src='" + signatureImage + "' style='border:1px solid black;width:250px;height:100px'>" +
 
     "<br><p><b>Tap Share → Print to save PDF</b></p>" +
 
